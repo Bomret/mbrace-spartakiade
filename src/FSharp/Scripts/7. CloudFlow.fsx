@@ -1,5 +1,5 @@
 ﻿#load "SetupThespian.fsx"
-#load @"..\GeoCoder.fs"
+#load @"../GeoCoder.fs"
 
 open System
 open MBrace.Core
@@ -39,6 +39,9 @@ let cluster = createLocalCluster(4)
 
 // 1. Start by opening a handle to a book we already inserted into the cluster.
 
+let splitByWord (text: string) =
+    text.Split([|' '; ','; '.'; ';'|], StringSplitOptions.RemoveEmptyEntries)
+
 let huckleberryFinn = CloudFlow.OfCloudFileByLine("books/huckleberryfinn.txt")
 
 // With this we can write distributed queries against the book.
@@ -61,19 +64,38 @@ let linesLongerThanFiftyCharacters =
 // Use CloudFlow.map (Select in LINQ) to convert each line
 // Then Take to restrict to 50 rows
 // Then toArray to get the data back
+let first50linesInUppercase =
+    huckleberryFinn
+    |> CloudFlow.map (fun l -> l.ToUpperInvariant ())
+    |> CloudFlow.take 50
+    |> CloudFlow.toArray
+    |> cluster.Run
 
 // 5. Find out the number of total words in the book.
 // a. You need to split each line into words
 // b. For each line, get back the length of the array of words
 // c. Call sum to add them.
+let totalNumberOfWords =
+    huckleberryFinn
+    |> CloudFlow.map splitByWord
+    |> CloudFlow.map (fun l -> l.Length)
+    |> CloudFlow.sum
+    |> cluster.Run
 
 // 6. Get the ten most popular words in all books
 // You will need to use either groupBy, countBy or sumByKey.
 // Use sortByDescending to get the "top ten" words
 // CloudFlow.ofCloudFile can take in a list [ ] of books e.g. [ "a"; "b"; "c"; ]
 
-let wordFrequency = [ "word", 10; "otherWord", 20 ]
-
+let wordFrequency =
+    CloudFlow.OfCloudFileByLine ["books/huckleberryfinn.txt"; "books/prideprejudice.txt"; "books/aliceinwonderland.txt"]
+    |> CloudFlow.collect splitByWord
+    |> CloudFlow.filter (fun w -> w.Length > 3)
+    |> CloudFlow.map (fun w -> w.ToLowerInvariant ())
+    |> CloudFlow.countBy id
+    |> CloudFlow.sortByDescending snd 10
+    |> CloudFlow.toArray
+    |> cluster.Run
 
 // You can chart the results easily: 
 open XPlot.GoogleCharts

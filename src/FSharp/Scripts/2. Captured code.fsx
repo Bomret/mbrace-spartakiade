@@ -20,11 +20,12 @@ let answer =
     } |> cluster.Run
 
 // Where is the Console output? Check the worker output windows!
-
-
-
+cluster.ShowProcesses ()
 
 
 // 2. MBrace will also automatically capture objects and send across to the cluster
 let firstNumber = 10
-let otherAnswer = cloud { return addNumbers(firstNumber, 5) } |> cluster.Run
+cloud { return addNumbers(firstNumber, 5) } 
+|> cluster.RunAsync
+|> Async.RunSynchronously
+|> printfn "%i"

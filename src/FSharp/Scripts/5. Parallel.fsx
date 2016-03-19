@@ -32,7 +32,12 @@ let locations =
       52.516275, 13.377704
       38.897676, -77.036530
       52.525084, 13.369402 ]
-
+    |> Seq.map (fun x -> cloud { 
+           let lat, lon = x
+           return GeoCoding.lookupAddress("AIzaSyAf-uZ-6xCoXdrFUZOYhNS-9cy0qFMDZYg", lat, lon) 
+       })
+    |> Cloud.Parallel
+    |> cluster.Run
 // You can use the GeoCoding module to lookup an address e.g.
 // GeoCoding.lookupAddress(googleKey, 12.0, -40.0)
 // You can use Balanced.map or Parallel, whichever you prefer.

@@ -19,7 +19,7 @@ let sentence =
         // use let! to unwrap from Cloud<string> to just string
         // this is like async / await "unwrapping" Task<string> to just string
         let! hello = helloCloud
-        let world = "" // get the value of "worldCloud" here
+        let! world = worldCloud // get the value of "worldCloud" here
         return hello + " " + world
     } |> cluster.Run // outside of cloud { } we need to call cluster.Run to "unwrap" the result.
 
@@ -36,7 +36,7 @@ let sentenceTwo =
     cloud {
         printfn "Starting!";
         let! hello = helloProcess |> Cloud.AwaitProcess
-        let world = "" // get the value of worldProcess here...
+        let! world = worldProcess |> Cloud.AwaitProcess // get the value of worldProcess here...
         printfn "Stopping!";
         return hello + " " + world
     } |> cluster.Run

@@ -31,3 +31,5 @@ packages/
 paket-files
 output/
 .fake/
+.vscode
+*.userprefs

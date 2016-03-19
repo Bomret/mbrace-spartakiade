@@ -20,10 +20,16 @@ let answerFromCSharp =
 // has the geolocation code already.
 
 // tip ... to go from a Task<T> to Cloud<T>, you need to use Cloud.AwaitTask
-let location =    
-    cloud {
-        // CSharp.GeoLocation.GetLongLat("google API key")
-        /// ??
-        return()
-    } |> cluster.Run
+let location = cloud {
+    let! latLong = 
+        CSharp.GeoLocation.GetLongLat("AIzaSyAf-uZ-6xCoXdrFUZOYhNS-9cy0qFMDZYg") 
+        |> Cloud.AwaitTask
+
+    latLong |> printfn "%A"
+
+    return latLong
+} 
+location |> cluster.Run
+
+
 

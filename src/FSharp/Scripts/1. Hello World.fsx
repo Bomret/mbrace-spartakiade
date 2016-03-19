@@ -13,7 +13,7 @@ let cluster = createLocalCluster(4)
 cluster.ShowWorkers()
 
 // 2a - View process history
-
+cluster.ShowProcesses ()
 // ????
 
 
@@ -56,3 +56,12 @@ let answer = cluster.Run computation
 // 5. Now one for you....
 
 // Create a cloud computation that calculates the current date and time. Just return the time of day.
+
+let currentTime = cloud {
+    let cur = DateTimeOffset.UtcNow
+    return cur.TimeOfDay;
+}
+
+currentTime 
+|> cluster.RunAsync  
+|> Async.RunSynchronously
