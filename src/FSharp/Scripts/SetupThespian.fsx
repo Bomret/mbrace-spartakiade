@@ -11,6 +11,7 @@ open MBrace.Thespian
 ThespianWorker.LocalExecutable <- Path.Combine(__SOURCE_DIRECTORY__, "..", "..", "..", "packages", "MBrace.Thespian", "tools", "mbrace.thespian.worker.exe")
 
 let createLocalCluster nodes =
-    ThespianCluster.InitOnCurrentMachine(nodes)
-
+    ThespianCluster.InitOnCurrentMachine(nodes,
+                                         logger = new ConsoleLogger(), 
+                                         logLevel = LogLevel.Info)
 #load @"load-references-debug.fsx"
